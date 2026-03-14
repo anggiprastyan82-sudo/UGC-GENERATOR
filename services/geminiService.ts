@@ -13,8 +13,7 @@ const fileToGenerativePart = async (file: File): Promise<Part> => {
   };
 };
 
-const getAiClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+const getAiClient = () => new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 export const generateUgcPlan = async (
     planningPrompt: string,
     sceneCount: number
