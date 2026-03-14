@@ -31,8 +31,6 @@ interface SettingsPanelProps {
     onCtaPerSceneChange: (enabled: boolean) => void; 
     onModelChange: (model: string) => void; 
     onGenerate: () => void;
-    apiKeySelected: boolean;
-    onSelectKey: () => void;
     isLoading: boolean;
     error: string | null;
     className?: string;
@@ -50,7 +48,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = (props) => {
         ctaPerScene, onCtaPerSceneChange,
         selectedModel, onModelChange,
         onProductImageUpload, onProductImage2Upload, onModelImageUpload,
-        onGenerate, apiKeySelected, onSelectKey, isLoading, error,
+        onGenerate, isLoading, error,
         className = ''
     } = props;
     
@@ -58,7 +56,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = (props) => {
     const isTopicBased = sceneStructureId === 'talking-head-awareness' || sceneStructureId === 'storytelling-camera';
     const productRequired = currentStructure?.requiredParts.includes('product') ?? true;
     
-    const canGenerate = productName && (productRequired ? props.productImage : true) && apiKeySelected && !isLoading;
+    const canGenerate = productName && (productRequired ? props.productImage : true) && !isLoading;
 
     return (
         <aside className={`w-full md:w-80 flex-shrink-0 bg-white border-l border-gray-200 flex flex-col shadow-sm ${className}`}>
@@ -195,36 +193,23 @@ const SettingsPanel: React.FC<SettingsPanelProps> = (props) => {
             </div>
 
             <footer className="p-5 border-t border-gray-100 bg-white">
-                {!apiKeySelected ? (
-                    <div className="flex flex-col items-center text-center">
-                        <div className="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-3">
-                            <span className="text-xl">⚠️</span>
+                <button 
+                    onClick={onGenerate} 
+                    disabled={!canGenerate}
+                    className="w-full bg-purple-600 text-white font-black py-4 px-4 rounded-xl flex items-center justify-center gap-3 hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-purple-100 active:scale-95 uppercase tracking-widest text-sm"
+                >
+                    {isLoading ? (
+                        <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <span>Memproses...</span>
                         </div>
-                        <p className="mb-1 text-xs text-red-600 font-black uppercase tracking-tighter">Kunci API Belum Dipilih</p>
-                        <p className="mb-4 text-[10px] text-gray-400 leading-tight">Video Generation memerlukan biaya kuota token.</p>
-                        <button onClick={onSelectKey} className="w-full bg-red-500 text-white font-black py-3 px-4 rounded-xl hover:bg-red-600 transition-all shadow-md active:scale-95 uppercase tracking-wider text-xs">
-                            Pilih Kunci API
-                        </button>
-                    </div>
-                ) : (
-                    <button 
-                        onClick={onGenerate} 
-                        disabled={!canGenerate}
-                        className="w-full bg-purple-600 text-white font-black py-4 px-4 rounded-xl flex items-center justify-center gap-3 hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-purple-100 active:scale-95 uppercase tracking-widest text-sm"
-                    >
-                        {isLoading ? (
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        ) : (
-                            <>
-                                <span className="text-xl">✨</span>
-                                <span>Buat UGC Sekarang</span>
-                            </>
-                        )}
-                    </button>
-                )}
+                    ) : (
+                        <>
+                            <span className="text-xl">✨</span>
+                            <span>Generate UGC Foto</span>
+                        </>
+                    )}
+                </button>
                 {error && <p className="text-red-500 text-[10px] font-bold mt-3 text-center bg-red-50 p-2 rounded-lg border border-red-100 uppercase tracking-tighter">{error}</p>}
                 
                 <div className="mt-4 text-[9px] text-gray-300 text-center font-bold uppercase tracking-widest">

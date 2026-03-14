@@ -56,7 +56,6 @@ BAPAK!!`,
 const App: React.FC = () => {
   // Shared State
   const [error, setError] = useState<string | null>(null);
-  const [apiKeySelected, setApiKeySelected] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(window.innerWidth > 768);
   const [activeTool, setActiveTool] = useState('ugc-tool');
   const [showAttentionModal, setShowAttentionModal] = useState(true);
@@ -165,25 +164,6 @@ const App: React.FC = () => {
         }
     }
   }, [activeTool, pbSceneCount, pbScenes.length]);
-
-
-  useEffect(() => {
-    const checkApiKey = async () => {
-      if (window.aistudio) {
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        setApiKeySelected(hasKey);
-      }
-    };
-    checkApiKey();
-  }, []);
-
-  const handleSelectKey = async () => {
-    if (window.aistudio) {
-      await window.aistudio.openSelectKey();
-      setApiKeySelected(true); // Assume success after open
-      setError(null);
-    }
-  };
   
   // --- UGC Tool Handlers ---
   const ugcHandleVideoPromptChange = (sceneId: number, prompt: string) => setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, videoPrompt: prompt } : s));
@@ -302,7 +282,7 @@ const App: React.FC = () => {
   const handleGenerateVideo = async (sceneId: number, customPrompt: string) => {
       const scene = scenes.find(s => s.id === sceneId); if (!scene || !scene.image) return;
       setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: GenerationStatus.GENERATING_VIDEO, errorMessage: '' } : s));
-      try { const videoUrl = await geminiService.generateVideoFromImage(scene.image, customPrompt, scene.script, addBackgroundMusic); setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, videoUrl, status: GenerationStatus.COMPLETED } : s)); } catch (videoError: any) { console.error(`Error generating video for scene ${scene.id}:`, videoError); const errorMessage = videoError.message || 'Unknown error'; let displayError = 'Gagal membuat video.'; if (errorMessage.includes("Requested entity was not found.")) { setError("API Key tidak ditemukan. Mohon pilih ulang API key Anda."); setApiKeySelected(false); displayError = "API Key tidak ditemukan."; } else if (errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("429")) { displayError = "Batas kuota untuk key ini habis."; setError("Kuota API Key habis. Mohon pilih API key yang lain untuk melanjutkan."); setApiKeySelected(false); } setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, status: GenerationStatus.ERROR, errorMessage: displayError } : s)); }
+      try { const videoUrl = await geminiService.generateVideoFromImage(scene.image, customPrompt, scene.script, addBackgroundMusic); setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, videoUrl, status: GenerationStatus.COMPLETED } : s)); } catch (videoError: any) { console.error(`Error generating video for scene ${scene.id}:`, videoError); const errorMessage = videoError.message || 'Unknown error'; let displayError = 'Gagal membuat video.'; if (errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("429")) { displayError = "Batas kuota untuk key ini habis."; } setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, status: GenerationStatus.ERROR, errorMessage: displayError } : s)); }
   };
   const isAnySceneProcessing = scenes.some(s => s.status === GenerationStatus.GENERATING_IMAGE || s.status === GenerationStatus.GENERATING_VIDEO);
   
@@ -394,7 +374,7 @@ const App: React.FC = () => {
   const handleGeneratePbVideo = async (sceneId: number, customPrompt: string) => {
     const scene = pbScenes.find(s => s.id === sceneId); if (!scene || !scene.image) return;
     setPbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: GenerationStatus.GENERATING_VIDEO, errorMessage: '' } : s));
-    try { const videoUrl = await geminiService.generateVideoFromImage(scene.image, customPrompt, scene.script, pbAddMusic); setPbScenes(prev => prev.map(s => s.id === scene.id ? { ...s, videoUrl, status: GenerationStatus.COMPLETED } : s)); } catch (videoError: any) { console.error(`Error generating video for scene ${scene.id}:`, videoError); const errorMessage = videoError.message || 'Unknown error'; let displayError = 'Gagal membuat video.'; if (errorMessage.includes("Requested entity was not found.")) { setError("API Key tidak ditemukan. Mohon pilih ulang API key Anda."); setApiKeySelected(false); displayError = "API Key tidak ditemukan."; } else if (errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("429")) { displayError = "Batas kuota untuk key ini habis."; setError("Kuota API Key habis. Mohon pilih API key yang lain untuk melanjutkan."); setApiKeySelected(false); } setPbScenes(prev => prev.map(s => s.id === scene.id ? { ...s, status: GenerationStatus.ERROR, errorMessage: displayError } : s)); }
+    try { const videoUrl = await geminiService.generateVideoFromImage(scene.image, customPrompt, scene.script, pbAddMusic); setPbScenes(prev => prev.map(s => s.id === scene.id ? { ...s, videoUrl, status: GenerationStatus.COMPLETED } : s)); } catch (videoError: any) { console.error(`Error generating video for scene ${scene.id}:`, videoError); const errorMessage = videoError.message || 'Unknown error'; let displayError = 'Gagal membuat video.'; if (errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("429")) { displayError = "Batas kuota untuk key ini habis."; } setPbScenes(prev => prev.map(s => s.id === scene.id ? { ...s, status: GenerationStatus.ERROR, errorMessage: displayError } : s)); }
   };
   const isAnyPbSceneProcessing = pbScenes.some(s => s.status === GenerationStatus.GENERATING_IMAGE || s.status === GenerationStatus.GENERATING_VIDEO);
   
@@ -501,8 +481,6 @@ const App: React.FC = () => {
                   onCtaPerSceneChange={setCtaPerScene} // Pass handler
                   onModelChange={setSelectedModel} // Pass handler
                   onGenerate={handleGenerateInitialAssets} 
-                  apiKeySelected={apiKeySelected} 
-                  onSelectKey={handleSelectKey} 
                   isLoading={isLoading || isAnySceneProcessing} 
                   error={error} 
               />
@@ -682,7 +660,7 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   <footer className="p-4 border-t border-gray-200 bg-white">
-                      {!apiKeySelected ? ( <div className="flex flex-col items-center text-center"><p className="mb-2 text-sm text-red-500 font-medium">Pembuatan video memerlukan Kunci API.</p><button onClick={handleSelectKey} className="w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700">Pilih Kunci API</button></div> ) : ( <button onClick={handleGeneratePbContent} disabled={isPbLoading || !pbModelImage || !pbComments || !pbReferenceScript || isAnyPbSceneProcessing} className="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"><span className="text-xl">👤✨</span>{isPbLoading ? 'Membuat...' : 'Buat Konten'}</button> )}
+                      <button onClick={handleGeneratePbContent} disabled={isPbLoading || !pbModelImage || !pbComments || !pbReferenceScript || isAnyPbSceneProcessing} className="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"><span className="text-xl">👤✨</span>{isPbLoading ? 'Membuat...' : 'Buat Konten'}</button>
                       {error && <p className="text-red-500 text-xs mt-2 text-center">{error}</p>}
                   </footer>
               </aside>
@@ -877,7 +855,7 @@ const App: React.FC = () => {
                     <footer className="p-6 bg-[#111827] border-t border-gray-800">
                         <button 
                             onClick={handleGenerateGemini3Images}
-                            disabled={isG3Loading || !apiKeySelected}
+                            disabled={isG3Loading}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg text-lg shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isG3Loading ? 'Sedang Memproses...' : 'Generate 4 Foto'}
@@ -941,7 +919,7 @@ const App: React.FC = () => {
                     <footer className="p-6 bg-[#111827] border-t border-gray-800">
                         <button 
                             onClick={handleGenerateColoringBook}
-                            disabled={isCbLoading || !apiKeySelected}
+                            disabled={isCbLoading}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg text-lg shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isCbLoading ? 'Sedang Memproses...' : 'Generate 4 Halaman'}
