@@ -73,8 +73,6 @@ const App: React.FC = () => {
   const [ugcGlobalCaption, setUgcGlobalCaption] = useState(''); // Global caption
   const [ugcCaptionCopied, setUgcCaptionCopied] = useState(false);
   
-  const [generateVoiceOver, setGenerateVoiceOver] = useState(true);
-  const [addBackgroundMusic, setAddBackgroundMusic] = useState(false);
   const [ctaPerScene, setCtaPerScene] = useState(false); // State for CTA checkbox
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -99,8 +97,6 @@ const App: React.FC = () => {
   const [pbDescription, setPbDescription] = useState('');
   
   const [isPbLoading, setIsPbLoading] = useState(false);
-  const [pbGenerateVo, setPbGenerateVo] = useState(true);
-  const [pbAddMusic, setPbAddMusic] = useState(false);
   const [pbLoadingMessage, setPbLoadingMessage] = useState('');
   const [pbHasGenerated, setPbHasGenerated] = useState(false);
   const [pbDescCopied, setPbDescCopied] = useState(false);
@@ -137,7 +133,6 @@ const App: React.FC = () => {
                 overlayTextSuggestion: '',
                 status: GenerationStatus.PENDING,
                 imagePrompt: '',
-                videoPrompt: '',
             }));
             setScenes(initialScenes);
         }
@@ -157,7 +152,6 @@ const App: React.FC = () => {
                 overlayTextSuggestion: '',
                 status: GenerationStatus.PENDING,
                 imagePrompt: '',
-                videoPrompt: `Animasi halus seolah model sedang berbicara dengan natural.`,
                 errorMessage: ''
             }));
             setPbScenes(initialScenes);
@@ -166,10 +160,9 @@ const App: React.FC = () => {
   }, [activeTool, pbSceneCount, pbScenes.length]);
   
   // --- UGC Tool Handlers ---
-  const ugcHandleVideoPromptChange = (sceneId: number, prompt: string) => setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, videoPrompt: prompt } : s));
   const ugcHandleScriptChange = (sceneId: number, script: string) => setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, script: script } : s));
   const ugcResetState = () => {
-    const initialScenes = Array.from({ length: ugcSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Menunggu pembuatan konten...', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '', videoPrompt: '' }));
+    const initialScenes = Array.from({ length: ugcSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Menunggu pembuatan konten...', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '' }));
     setScenes(initialScenes);
     setUgcGlobalCaption('');
     setError(null);
@@ -188,7 +181,7 @@ const App: React.FC = () => {
     if (!productName) { setError('Mohon isi Nama Produk atau Topik Video.'); return; }
     
     // Reset scenes but show the panel
-    const initialScenes = Array.from({ length: ugcSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Menunggu pembuatan konten...', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '', videoPrompt: '' }));
+    const initialScenes = Array.from({ length: ugcSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Menunggu pembuatan konten...', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '' }));
     setScenes(initialScenes);
     setUgcGlobalCaption('');
     setUgcHasGenerated(true);
@@ -238,7 +231,6 @@ const App: React.FC = () => {
         socialCaption: plan[index].social_caption, // Capture per-scene caption if exists
         overlayTextSuggestion: plan[index].overlay_text, 
         imagePrompt: plan[index].image_prompt,
-        videoPrompt: plan[index].video_prompt,
         status: GenerationStatus.IMAGE_READY,
       }));
       setScenes(updatedScenes);
@@ -279,12 +271,7 @@ const App: React.FC = () => {
         setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: GenerationStatus.ERROR, errorMessage: e.message } : s)); 
     }
   };
-  const handleGenerateVideo = async (sceneId: number, customPrompt: string) => {
-      const scene = scenes.find(s => s.id === sceneId); if (!scene || !scene.image) return;
-      setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: GenerationStatus.GENERATING_VIDEO, errorMessage: '' } : s));
-      try { const videoUrl = await geminiService.generateVideoFromImage(scene.image, customPrompt, scene.script, addBackgroundMusic); setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, videoUrl, status: GenerationStatus.COMPLETED } : s)); } catch (videoError: any) { console.error(`Error generating video for scene ${scene.id}:`, videoError); const errorMessage = videoError.message || 'Unknown error'; let displayError = 'Gagal membuat video.'; if (errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("429")) { displayError = "Batas kuota untuk key ini habis."; } setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, status: GenerationStatus.ERROR, errorMessage: displayError } : s)); }
-  };
-  const isAnySceneProcessing = scenes.some(s => s.status === GenerationStatus.GENERATING_IMAGE || s.status === GenerationStatus.GENERATING_VIDEO);
+  const isAnySceneProcessing = scenes.some(s => s.status === GenerationStatus.GENERATING_IMAGE);
   
   const handleCopyUgcGlobalCaption = () => {
       navigator.clipboard.writeText(ugcGlobalCaption).then(() => {
@@ -294,10 +281,9 @@ const App: React.FC = () => {
   };
 
   // --- Personal Branding Tool Handlers ---
-  const pbHandleVideoPromptChange = (sceneId: number, prompt: string) => setPbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, videoPrompt: prompt } : s));
   const pbHandleScriptChange = (sceneId: number, script: string) => setPbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, script: script } : s));
   const pbResetState = () => {
-    const initialScenes = Array.from({ length: pbSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Konten personal branding', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '', videoPrompt: `Animasi halus seolah model sedang berbicara dengan natural.`, errorMessage: '' }));
+    const initialScenes = Array.from({ length: pbSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Konten personal branding', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '', errorMessage: '' }));
     setPbScenes(initialScenes);
     setPbThumbnailTitle('');
     setPbDescription('');
@@ -311,7 +297,7 @@ const App: React.FC = () => {
       if (!pbComments || !pbReferenceScript) { setError("Mohon isi kolom komentar dan naskah referensi."); return; }
       if (!pbModelImage) { setError("Mohon unggah foto model untuk personal branding."); return; }
 
-      const initialScenes = Array.from({ length: pbSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Konten personal branding', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '', videoPrompt: `Animasi halus seolah model sedang berbicara dengan natural.`, errorMessage: '' }));
+      const initialScenes = Array.from({ length: pbSceneCount }, (_, i) => ({ id: i + 1, title: `Adegan ${i + 1}`, description: 'Konten personal branding', image: '', script: '', overlayTextSuggestion: '', status: GenerationStatus.PENDING, imagePrompt: '', errorMessage: '' }));
       setPbScenes(initialScenes);
       setPbThumbnailTitle('');
       setPbDescription('');
@@ -371,12 +357,7 @@ const App: React.FC = () => {
     } catch (e: any) { console.error(`Error regenerating PB image for scene ${sceneId}:`, e); setPbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: GenerationStatus.ERROR, errorMessage: e.message } : s)); }
   };
 
-  const handleGeneratePbVideo = async (sceneId: number, customPrompt: string) => {
-    const scene = pbScenes.find(s => s.id === sceneId); if (!scene || !scene.image) return;
-    setPbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: GenerationStatus.GENERATING_VIDEO, errorMessage: '' } : s));
-    try { const videoUrl = await geminiService.generateVideoFromImage(scene.image, customPrompt, scene.script, pbAddMusic); setPbScenes(prev => prev.map(s => s.id === scene.id ? { ...s, videoUrl, status: GenerationStatus.COMPLETED } : s)); } catch (videoError: any) { console.error(`Error generating video for scene ${scene.id}:`, videoError); const errorMessage = videoError.message || 'Unknown error'; let displayError = 'Gagal membuat video.'; if (errorMessage.includes("RESOURCE_EXHAUSTED") || errorMessage.includes("429")) { displayError = "Batas kuota untuk key ini habis."; } setPbScenes(prev => prev.map(s => s.id === scene.id ? { ...s, status: GenerationStatus.ERROR, errorMessage: displayError } : s)); }
-  };
-  const isAnyPbSceneProcessing = pbScenes.some(s => s.status === GenerationStatus.GENERATING_IMAGE || s.status === GenerationStatus.GENERATING_VIDEO);
+  const isAnyPbSceneProcessing = pbScenes.some(s => s.status === GenerationStatus.GENERATING_IMAGE);
   
   const handleCopyDescription = () => {
       const text = `TITLE: ${pbThumbnailTitle}\n\n${pbDescription}`;
@@ -464,8 +445,6 @@ const App: React.FC = () => {
                   sceneStructureId={sceneStructureId} 
                   ugcSceneCount={ugcSceneCount}
                   ugcWordCount={ugcWordCount}
-                  generateVoiceOver={generateVoiceOver} 
-                  addBackgroundMusic={addBackgroundMusic} 
                   ctaPerScene={ctaPerScene} // Pass CTA state
                   selectedModel={selectedModel} // Pass selected model
                   onProductImageUpload={setProductImage} 
@@ -476,8 +455,6 @@ const App: React.FC = () => {
                   onSceneStructureChange={setSceneStructureId} 
                   onUgcSceneCountChange={setUgcSceneCount}
                   onUgcWordCountChange={setUgcWordCount}
-                  onGenerateVoiceOverChange={setGenerateVoiceOver} 
-                  onAddBackgroundMusicChange={setAddBackgroundMusic} 
                   onCtaPerSceneChange={setCtaPerScene} // Pass handler
                   onModelChange={setSelectedModel} // Pass handler
                   onGenerate={handleGenerateInitialAssets} 
@@ -510,7 +487,7 @@ const App: React.FC = () => {
                         )}
 
                         <h2 className="text-lg font-semibold">Storyboard Scene <span className="text-sm text-gray-500 font-normal">({scenes.filter(s => s.image).length}/{ugcSceneCount} adegan selesai)</span></h2>
-                        <div className="grid grid-cols-1 gap-6">{scenes.map(scene => (<SceneCard key={scene.id} scene={scene} onRegenerateImage={handleRegenerateImage} onGenerateVideo={handleGenerateVideo} onVideoPromptChange={ugcHandleVideoPromptChange} onScriptChange={ugcHandleScriptChange} isVoiceOverEnabled={generateVoiceOver} addBackgroundMusic={addBackgroundMusic} />))}</div>
+                        <div className="grid grid-cols-1 gap-6">{scenes.map(scene => (<SceneCard key={scene.id} scene={scene} onRegenerateImage={handleRegenerateImage} onScriptChange={ugcHandleScriptChange} />))}</div>
                     </div>
                 </main>
               ) : (
@@ -644,7 +621,6 @@ const App: React.FC = () => {
                               <option value="8">8 Adegan</option>
                           </select>
                       </div>
-                      <div className="space-y-3 pt-4 border-t border-gray-200"><Switch label="Buat Voice Over" enabled={pbGenerateVo} onChange={setPbGenerateVo} disabled={isPbLoading} /><Switch label="Tambah Musik Latar" enabled={pbAddMusic} onChange={setPbAddMusic} disabled={isPbLoading} /></div>
 
                       <div className="pt-4 border-t border-gray-200">
                         <label className="text-sm font-semibold text-gray-600 mb-2 block">Model Generasi Image</label>
@@ -700,7 +676,7 @@ const App: React.FC = () => {
                         </div>
 
                         <h2 className="text-lg font-semibold">Storyboard Visual <span className="text-sm text-gray-500 font-normal">({pbScenes.filter(s => s.image).length}/{pbSceneCount} scene ready)</span></h2>
-                        <div className="grid grid-cols-1 gap-6">{pbScenes.map(scene => (<SceneCard key={scene.id} scene={scene} onRegenerateImage={handleRegeneratePbImage} onGenerateVideo={handleGeneratePbVideo} onVideoPromptChange={pbHandleVideoPromptChange} onScriptChange={pbHandleScriptChange} isVoiceOverEnabled={pbGenerateVo} addBackgroundMusic={pbAddMusic} />))}</div>
+                        <div className="grid grid-cols-1 gap-6">{pbScenes.map(scene => (<SceneCard key={scene.id} scene={scene} onRegenerateImage={handleRegeneratePbImage} onScriptChange={pbHandleScriptChange} />))}</div>
                     </div>
                 </main>
               ) : (

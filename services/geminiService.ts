@@ -37,10 +37,9 @@ export const generateUgcPlan = async (
                         script: { type: Type.STRING },
                         social_caption: { type: Type.STRING },
                         image_prompt: { type: Type.STRING },
-                        video_prompt: { type: Type.STRING },
                         overlay_text: { type: Type.STRING },
                     },
-                    required: ['title', 'description', 'script', 'image_prompt', 'video_prompt', 'overlay_text']
+                    required: ['title', 'description', 'script', 'image_prompt', 'overlay_text']
                 }
             }
         },
@@ -147,108 +146,6 @@ export const regenerateSingleImage = async (
         throw new Error('Gagal membuat ulang gambar.');
     }
     return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
-};
-
-export const generateVoiceOver = async (fullScript: string): Promise<string> => {
-    const ai = getAiClient();
-    const model = 'gemini-2.5-flash-preview-tts';
-
-    const response = await ai.models.generateContent({
-        model,
-        contents: [{ parts: [{ text: `Dengan nada yang ceria dan ramah dalam Bahasa Indonesia kasual, bacakan naskah berikut: ${fullScript}` }] }],
-        config: {
-            responseModalities: [Modality.AUDIO],
-            speechConfig: {
-                voiceConfig: {
-                    prebuiltVoiceConfig: { voiceName: 'Kore' }, // A friendly, consistent voice
-                },
-            },
-        },
-    });
-
-    const audioPart = response.candidates?.[0]?.content?.parts.find(p => p.inlineData);
-    if (!audioPart?.inlineData?.data) {
-        throw new Error('Gagal membuat voice over.');
-    }
-    return `data:audio/mpeg;base64,${audioPart.inlineData.data}`;
-};
-
-export const generateVideoFromImage = async (
-  imageBase64: string,
-  animationPrompt: string,
-  script: string,
-  withBackgroundMusic: boolean
-): Promise<string> => {
-    const ai = getAiClient();
-    const mimeType = imageBase64.split(';')[0].split(':')[1];
-    const imageData = imageBase64.split(',')[1];
-    
-    const audioInstruction = withBackgroundMusic 
-        ? 'AUDIO: Include subtle background music and speech.' 
-        : 'AUDIO: Clear speech only. NO BACKGROUND MUSIC. The sound of the model speaking the script.';
-
-    const baseInstructions = `
-    STRICT OUTPUT FORMAT: (VERTICAL 9:16 ASPECT RATIO). The final video MUST BE 9:16 PORTRAIT. CROP THE INPUT IMAGE TO FILL THE VERTICAL SCREEN. NO LETTERBOX. NO BLACK BARS.
-    NEGATIVE CONSTRAINTS: DO NOT include any TEXT, SUBTITLES, CAPTIONS, WATERMARKS, or LOGOS. DO NOT morph the face. NO DISTORTION of facial features.
-    VISUAL QUALITY: High definition, cinematic lighting, social media aesthetic.
-    CONSISTENCY: The character's face and identity MUST remain exactly the same as the input image.
-    ACTION: ${animationPrompt}. The model should be looking at the camera and speaking naturally.
-    CONTEXT: The character is speaking this line: "${script}".
-    ${audioInstruction}`;
-
-    const fullPrompt = `(VERTICAL 9:16 VIDEO) ${animationPrompt}. ${baseInstructions}`;
-
-    let operation;
-    try {
-        operation = await ai.models.generateVideos({
-            model: 'veo-3.1-fast-generate-preview',
-            prompt: fullPrompt,
-            image: {
-                imageBytes: imageData,
-                mimeType: mimeType,
-            },
-            config: {
-                numberOfVideos: 1,
-                resolution: '720p',
-                aspectRatio: '9:16'
-            }
-        });
-    } catch(e: any) {
-        if (e.message.includes("API key not valid")) {
-             throw new Error("Kunci API tidak valid. Silakan hubungi administrator.");
-        }
-        throw e;
-    }
-
-
-    while (!operation.done) {
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Poll every 5 seconds
-        operation = await ai.operations.getVideosOperation({ operation: operation });
-    }
-    
-    if (operation.error) {
-        console.error("Video generation operation failed:", operation.error);
-        throw new Error(`Pembuatan video gagal: ${operation.error.message || 'Kesalahan tidak diketahui pada server AI'}`);
-    }
-
-    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-    if (!downloadLink) {
-        console.error("No video link found in operation response:", operation);
-        throw new Error('Pembuatan video gagal atau tidak mengembalikan tautan. Kemungkinan konten diblokir oleh filter keamanan.');
-    }
-    
-    const videoResponse = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
-    if (!videoResponse.ok) {
-        const errorText = await videoResponse.text();
-        console.error("Video download failed:", errorText);
-        if (errorText.includes("Requested entity was not found.")) {
-            throw new Error("Entitas tidak ditemukan. Kunci API mungkin tidak valid.");
-        }
-        throw new Error(`Gagal mengunduh video yang dihasilkan. Status: ${videoResponse.status}`);
-    }
-
-    const videoBlob = await videoResponse.blob();
-    return URL.createObjectURL(videoBlob);
 };
 
 export const generateImageFromPrompt = async (prompt: string): Promise<string> => {

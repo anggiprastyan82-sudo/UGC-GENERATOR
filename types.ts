@@ -3,7 +3,6 @@ export enum GenerationStatus {
   PENDING = 'PENDING',
   GENERATING_IMAGE = 'GENERATING_IMAGE',
   IMAGE_READY = 'IMAGE_READY',
-  GENERATING_VIDEO = 'GENERATING_VIDEO',
   COMPLETED = 'COMPLETED',
   ERROR = 'ERROR',
 }
@@ -16,11 +15,9 @@ export interface Scene {
   script: string;
   overlayTextSuggestion?: string;
   socialCaption?: string; // New: Caption per scene
-  videoUrl?: string; // blob URL
   status: GenerationStatus;
   errorMessage?: string;
   imagePrompt: string;
-  videoPrompt: string;
 }
 
 export interface SceneStructure {

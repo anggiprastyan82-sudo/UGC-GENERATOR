@@ -13,14 +13,10 @@ import TextIcon from './icons/TextIcon';
 interface SceneCardProps {
   scene: Scene;
   onRegenerateImage: (sceneId: number) => void;
-  onGenerateVideo: (sceneId: number, customPrompt: string) => void;
-  onVideoPromptChange: (sceneId: number, prompt: string) => void;
   onScriptChange: (sceneId: number, script: string) => void;
-  isVoiceOverEnabled: boolean;
-  addBackgroundMusic: boolean;
 }
 
-const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGenerateVideo, onVideoPromptChange, onScriptChange, isVoiceOverEnabled, addBackgroundMusic }) => {
+const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onScriptChange }) => {
   const [copied, setCopied] = useState(false);
   const [promptCopied, setPromptCopied] = useState(false);
   const [narrativeCopied, setNarrativeCopied] = useState(false);
@@ -65,7 +61,7 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGener
         aksi: scene.script ? `Berakting dan berbicara sesuai naskah: "${scene.script}"` : "Tidak ada aksi spesifik.",
       },
       kamera: {
-        gerakan: scene.videoPrompt || "Gerakan kamera natural.",
+        gerakan: "Gerakan kamera natural.",
         sudut_pandang: "Sejajar mata, medium shot (saran).",
       },
       pencahayaan: {
@@ -73,7 +69,7 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGener
         suhu_warna: "Netral dan cerah.",
       },
       audio: {
-        musik: addBackgroundMusic ? "Musik latar yang pas dengan mood ditambahkan." : "Tanpa musik latar.",
+        musik: "Musik latar yang pas dengan mood.",
         efek_suara: "Tidak ada.",
         dialog_vo: scene.script || "Tanpa voice over.",
       }
@@ -88,7 +84,7 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGener
 
   const handleCopyNarrative = () => {
     // Create a compact narrative prompt suitable for tools like Canva
-    const narrative = `Prompt Video (9:16): ${scene.imagePrompt} \n\nAksi/Gerakan: ${scene.videoPrompt} \n\nKonteks: ${scene.description}. \n\nNaskah VO: "${scene.script || ''}" \n\n(Style: Cinematic, Realistic 4K, No Watermark)`;
+    const narrative = `Prompt Foto (9:16): ${scene.imagePrompt} \n\nKonteks: ${scene.description}. \n\nNaskah VO: "${scene.script || ''}" \n\n(Style: Cinematic, Realistic 4K, No Watermark)`;
 
     navigator.clipboard.writeText(narrative).then(() => {
         setNarrativeCopied(true);
@@ -96,11 +92,11 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGener
     });
   };
 
-  const isActionInProgress = scene.status === GenerationStatus.GENERATING_IMAGE || scene.status === GenerationStatus.GENERATING_VIDEO;
+  const isActionInProgress = scene.status === GenerationStatus.GENERATING_IMAGE;
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
         {/* Image Column */}
         <div className="relative">
             <div className="w-full aspect-[9/16] bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden border border-gray-300">
@@ -117,29 +113,6 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGener
                     <DownloadIcon className="w-4 h-4" />
                 </button>
              )}
-        </div>
-
-        {/* Video Column */}
-        <div className="relative">
-            <div className="w-full aspect-[9/16] bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden border border-gray-300">
-                {scene.status === GenerationStatus.GENERATING_VIDEO && (
-                    <div className="text-center text-gray-800">
-                        <Spinner />
-                        <p className="text-xs mt-2">Membuat video...</p>
-                    </div>
-                )}
-                {scene.videoUrl && <video src={scene.videoUrl} controls className="w-full h-full object-cover" />}
-                {!scene.videoUrl && scene.status !== GenerationStatus.GENERATING_VIDEO && <span className="text-gray-500 text-sm">Belum ada video</span>}
-                {scene.videoUrl && scene.status === GenerationStatus.COMPLETED && (
-                    <button 
-                        onClick={() => handleDownload(scene.videoUrl!, `scene_${scene.id}_video.mp4`)}
-                        className="absolute top-2 right-2 bg-white bg-opacity-60 text-black p-2 rounded-full hover:bg-opacity-80 transition"
-                        aria-label="Unduh Video"
-                    >
-                        <DownloadIcon className="w-4 h-4" />
-                    </button>
-                )}
-            </div>
         </div>
         
         {/* Info and Actions Column */}
@@ -201,22 +174,20 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGener
                 </div>
             </div>
             
-            {isVoiceOverEnabled && (
-                <div className="mb-4">
-                    <label htmlFor={`script-${scene.id}`} className="text-sm font-semibold text-gray-600 mb-1 block">
-                      Naskah Voice Over
-                    </label>
-                    <textarea 
-                        id={`script-${scene.id}`}
-                        rows={3}
-                        value={scene.script}
-                        onChange={(e) => onScriptChange(scene.id, e.target.value)}
-                        placeholder="Tulis naskah untuk adegan ini..."
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition disabled:opacity-50"
-                        disabled={isActionInProgress}
-                    />
-                </div>
-            )}
+            <div className="mb-4">
+                <label htmlFor={`script-${scene.id}`} className="text-sm font-semibold text-gray-600 mb-1 block">
+                  Naskah Voice Over
+                </label>
+                <textarea 
+                    id={`script-${scene.id}`}
+                    rows={3}
+                    value={scene.script}
+                    onChange={(e) => onScriptChange(scene.id, e.target.value)}
+                    placeholder="Tulis naskah untuk adegan ini..."
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition disabled:opacity-50"
+                    disabled={isActionInProgress}
+                />
+            </div>
 
             {scene.overlayTextSuggestion && (
               <div className="mb-4">
@@ -238,34 +209,10 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onRegenerateImage, onGener
               </div>
             )}
 
-            <div>
-                <label htmlFor={`video-prompt-${scene.id}`} className="text-sm font-semibold text-gray-600 mb-1 block">
-                    Prompt Animasi Video
-                </label>
-                <textarea 
-                    id={`video-prompt-${scene.id}`}
-                    rows={3}
-                    value={scene.videoPrompt}
-                    onChange={(e) => onVideoPromptChange(scene.id, e.target.value)}
-                    placeholder="Contoh: 'model menunjukkan produk sambil tersenyum'"
-                    className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition disabled:opacity-50"
-                    disabled={isActionInProgress}
-                />
-            </div>
           </div>
-          <div className="mt-4">
-            <button 
-                onClick={() => onGenerateVideo(scene.id, scene.videoPrompt)}
-                disabled={isActionInProgress || ![GenerationStatus.IMAGE_READY, GenerationStatus.COMPLETED, GenerationStatus.ERROR].includes(scene.status)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                <VideoIcon className="w-4 h-4" />
-                Buat Video
-            </button>
-            {scene.status === GenerationStatus.ERROR && scene.errorMessage && (
-               <p className="text-red-500 text-xs mt-2">Error: {scene.errorMessage}</p>
-            )}
-          </div>
+          {scene.status === GenerationStatus.ERROR && scene.errorMessage && (
+             <p className="text-red-500 text-xs mt-2">Error: {scene.errorMessage}</p>
+          )}
         </div>
       </div>
     </div>

@@ -69,8 +69,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris yang SANGAT DETAIL. 
          FORMAT PROMPT: "A vertical 9:16 portrait photo. The provided [MODEL] image is [AKSI] with the provided [PRODUK] image in [LOKASI]. Subject centered in frame with headroom for vertical cropping. The model has [EKSPRESI]. The product packaging is clearly visible. Modern Indonesian aesthetic, professional lighting. NO TEXT, NO WATERMARKS."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Model menghela nafas dan menggelengkan kepala", "Model mengangkat produk dan tersenyum", "Kamera zoom in perlahan ke produk").
-      7. "overlay_text": Teks layar (Bahasa Indonesia, singkat & "nendang").`
+      6. "overlay_text": Teks layar (Bahasa Indonesia, singkat & "nendang").`
   },
   {
     id: 'fashion-lifestyle',
@@ -102,8 +101,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris. 
          FORMAT: "A vertical 9:16 portrait fashion shot. Subject centered in frame with headroom for vertical cropping. The provided [MODEL] image is wearing/holding the provided [PRODUK] image. Pose is [POSE]. Background is [LOKASI - Modern Indonesian Setting]. Cinematic lighting, 4k resolution, trending on instagram. NO TEXT IN BACKGROUND."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Model berputar memperlihatkan baju", "Rambut model tertiup angin", "Model berjalan percaya diri ke arah kamera").
-      7. "overlay_text": Teks layar (Bahasa Indonesia, minimalis).`
+      6. "overlay_text": Teks layar (Bahasa Indonesia, minimalis).`
   },
   {
     id: 'fashion-sales-hard',
@@ -146,8 +144,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris.
          FORMAT: "A vertical 9:16 portrait fashion photo. Subject centered. The provided [MODEL] image is wearing [PRODUK]. Action: [AKSI SESUAI SCRIPT - Misal: Showing texture, pointing to price tag, spinning]. Background: [Modern Studio/Indoor]. High key lighting. NO TEXT."
-      6. "video_prompt": Instruksi animasi (Bahasa Indonesia). Contoh: "Kamera zoom in ke tekstur kain", "Model berputar menunjukkan cuttingan baju", "Model menunjuk ke layar dengan antusias".
-      7. "overlay_text": Teks layar yang "NENDANG" (Misal: "Under 200K!", "Busui Friendly", "Muat BB 80Kg").`
+      6. "overlay_text": Teks layar yang "NENDANG" (Misal: "Under 200K!", "Busui Friendly", "Muat BB 80Kg").`
   },
    {
     id: 'digital-service',
@@ -179,8 +176,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris. 
          FORMAT: "A vertical 9:16 portrait photo. Subject centered in frame with headroom for vertical cropping. The provided [MODEL] image is holding a smartphone showing the [PRODUK] interface. The model is [AKSI]. Modern Indonesian indoor background, bright lighting. NO TEXT OVERLAYS."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Jari model mengetuk layar HP", "Model melihat HP lalu tersenyum puas", "Kamera fokus pada layar HP").
-      7. "overlay_text": Teks layar (Bahasa Indonesia, poin kunci).`
+      6. "overlay_text": Teks layar (Bahasa Indonesia, poin kunci).`
   },
    {
     id: 'food-beverage',
@@ -211,8 +207,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris. 
          FORMAT: "A vertical 9:16 portrait close-up photo. Subject centered in frame with headroom for vertical cropping. The provided [PRODUK] image looks delicious. The provided [MODEL] image is holding the food/drink. Depth of field, vibrant colors, high end food photography. NO TEXT."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Uap panas mengepul dari makanan", "Model menggigit makanan dengan nikmat", "Saus menetes perlahan").
-      7. "overlay_text": Teks layar (Bahasa Indonesia).`
+      6. "overlay_text": Teks layar (Bahasa Indonesia).`
   },
   {
     id: 'vlog-review',
@@ -244,8 +239,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris. 
          FORMAT: "A vertical 9:16 portrait selfie-style photo. Subject centered in frame with headroom for vertical cropping. The provided [MODEL] image is holding the provided [PRODUK] image next to their face. Indonesian Bedroom or Living room background. Authentic UGC look. NO TEXT ON IMAGE."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Tangan model sedikit memutar produk", "Kepala model bergerak natural saat bicara", "Model menunjuk ke produk di tangannya").
-      7. "overlay_text": Teks layar (Bahasa Indonesia).`
+      6. "overlay_text": Teks layar (Bahasa Indonesia).`
   },
   {
     id: 'unboxing',
@@ -275,8 +269,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris. 
          FORMAT: "A vertical 9:16 portrait photo. Subject centered in frame with headroom for vertical cropping. High angle shot looking down at a table. The provided [MODEL] image hands are opening the provided [PRODUK] packaging. Clean aesthetic table surface. NO TEXT."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Tangan merobek segel paket", "Mengangkat tutup kotak perlahan", "Mengambil produk dari dalam kotak").
-      7. "overlay_text": Teks layar (Bahasa Indonesia).`
+      6. "overlay_text": Teks layar (Bahasa Indonesia).`
   },
   {
     id: 'storytelling-camera',
@@ -311,8 +304,7 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris. 
          FORMAT: "A vertical 9:16 portrait close-up shot of the provided [MODEL] image. Subject centered in frame with headroom for vertical cropping. Eye contact with camera. Expression is [EMOSI]. Indonesian aesthetic background. Cinematic depth of field. NO TEXT. NO WATERMARK."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Model berbicara menatap lensa dengan emosional", "Model mengangguk pelan sambil bicara", "Model tersenyum tipis ke arah kamera").
-      7. "overlay_text": Teks layar (Bahasa Indonesia, pertanyaan atau kalimat puitis).`
+      6. "overlay_text": Teks layar (Bahasa Indonesia, pertanyaan atau kalimat puitis).`
   },
   {
     id: 'talking-head-awareness',
@@ -347,7 +339,6 @@ export const SCENE_STRUCTURES: SceneStructure[] = [
       4. "social_caption": Caption singkat per scene (jika mode CTA aktif).
       5. "image_prompt": Prompt visual bahasa Inggris. 
          FORMAT: "A vertical 9:16 portrait shot of the provided [MODEL] image looking directly at the camera lens. Subject centered in frame with headroom for vertical cropping. Professional lighting. Clean modern background (Indonesian context). Hand gestures suitable for explaining. NO TEXT OR GRAPHICS."
-      6. "video_prompt": Instruksi animasi atau gerakan kamera dalam BAHASA INDONESIA (misal: "Model berbicara intens ke kamera", "Tangan model memberi gestur menjelaskan", "Model menunjuk ke bawah saat memberikan CTA").
-      7. "overlay_text": Teks layar (Bahasa Indonesia, headline topik).`
+      6. "overlay_text": Teks layar (Bahasa Indonesia, headline topik).`
   }
 ];

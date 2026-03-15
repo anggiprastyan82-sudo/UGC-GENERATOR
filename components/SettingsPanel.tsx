@@ -14,8 +14,6 @@ interface SettingsPanelProps {
     sceneStructureId: string;
     ugcSceneCount: number;
     ugcWordCount: number; 
-    generateVoiceOver: boolean;
-    addBackgroundMusic: boolean;
     ctaPerScene: boolean; 
     selectedModel: string; 
     onProductImageUpload: (file: File) => void;
@@ -26,8 +24,6 @@ interface SettingsPanelProps {
     onSceneStructureChange: (id: string) => void;
     onUgcSceneCountChange: (count: number) => void;
     onUgcWordCountChange: (count: number) => void; 
-    onGenerateVoiceOverChange: (enabled: boolean) => void;
-    onAddBackgroundMusicChange: (enabled: boolean) => void;
     onCtaPerSceneChange: (enabled: boolean) => void; 
     onModelChange: (model: string) => void; 
     onGenerate: () => void;
@@ -43,8 +39,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = (props) => {
         sceneStructureId, onSceneStructureChange,
         ugcSceneCount, onUgcSceneCountChange,
         ugcWordCount, onUgcWordCountChange,
-        generateVoiceOver, onGenerateVoiceOverChange,
-        addBackgroundMusic, onAddBackgroundMusicChange,
         ctaPerScene, onCtaPerSceneChange,
         selectedModel, onModelChange,
         onProductImageUpload, onProductImage2Upload, onModelImageUpload,
@@ -61,7 +55,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = (props) => {
     return (
         <aside className={`w-full md:w-80 flex-shrink-0 bg-white border-l border-gray-200 flex flex-col shadow-sm ${className}`}>
             <header className="p-5 border-b border-gray-100 bg-gray-50/50">
-                <h2 className="text-xl font-black text-gray-900 tracking-tight">Konfigurasi Video</h2>
+                <h2 className="text-xl font-black text-gray-900 tracking-tight">Konfigurasi Foto</h2>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-1">UGC Filmmaker Setup</p>
             </header>
 
@@ -173,8 +167,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = (props) => {
                 </div>
 
                 <div className="space-y-4 pt-6 border-t border-gray-100">
-                    <Switch label="Gunakan AI Voice Over" enabled={generateVoiceOver} onChange={onGenerateVoiceOverChange} disabled={isLoading} />
-                    <Switch label="Gunakan Background Musik" enabled={addBackgroundMusic} onChange={onAddBackgroundMusicChange} disabled={isLoading} />
                     <Switch label="Mode Keranjang Kuning (CTA)" enabled={ctaPerScene} onChange={onCtaPerSceneChange} disabled={isLoading} />
                 </div>
 
